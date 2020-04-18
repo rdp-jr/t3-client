@@ -1,0 +1,22 @@
+/* .square:before {
+    content: "";
+    height: 5px;
+    position: relative;
+    display: flex;
+    background-color: lightpink;
+} */
+
+
+.square {
+    height: 50px;
+    /* max-width: 50px;
+    max-height: 50px; */
+    width: 50px;
+    margin: 5px;
+    vertical-align: middle;
+    border: none;
+    background-color: transparent;
+    /* font-size: 100vh; */
+    
+   
+}
