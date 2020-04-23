@@ -4,7 +4,7 @@ import './Square.css'
 const Square = (props) => {
     return (
         <button 
-            className="square"
+            className="square textMarker"
             onClick={props.onClick}>
             {props.value}
         </button>

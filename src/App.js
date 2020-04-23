@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import Board from './components/Board'
-import { GameProvider } from './components/GameContext'
 import Stats from './components/Stats'
 import socketIOClient from 'socket.io-client'
 import Chat from './components/Chat'
 import _ from 'lodash'
 import { calculateWinner } from './functions/Functions'
-// import { GameContext } from './components/GameContext'
+// const socket = socketIOClient('localhost:8080')
 const socket = socketIOClient('https://t3-server.herokuapp.com')
 
 function App() {
   const [boardSquares, setBoardSquares] = useState(Array(9).fill(null))
-  // const { setScores } = useContext(GameContext)
+  const [hasStart, setHasStart] = useState(false)
   
   const [hasAddedFlag, setHasAddedFlag] = useState(false)
   const [scores, setScores] = useState({
@@ -37,10 +36,10 @@ function App() {
 
   const sendServer = (type, data) => {
     if (_.isEqual(history, data)) {
-      console.log(`[CLIENT] Blocked duplicate message of TYPE[${type}]`)
+      // console.log(`[CLIENT] Blocked duplicate message of TYPE[${type}]`)
     } else {
-      console.log(`[CLIENT] Emitting TYPE[${type}]...`)
-      console.log(data)
+      // console.log(`[CLIENT] Emitting TYPE[${type}]...`)
+      // console.log(data)
       socket.emit(type, data)
       setHistory({type, data})
     }
@@ -92,18 +91,9 @@ function App() {
   }, [])
 
   const updateScore = useCallback((data) => {
-    console.log('updating score..')
-    console.log(data)
-    // if (hasAdded === false) {
-    //   if (player === 'X') {
-    //     setScores(prevScores =>({...prevScores, xScore: prevScores.xScore + 1}))
-    //   } else {
-    //     setScores(prevScores =>({...prevScores, oScore: prevScores.oScore + 1}))
-    //   }
-    // }
-
-    // setHasAdded(true)
-
+    // console.log('updating score..')
+    // console.log(data)
+    
     setScores(data)
     
   }, [setScores])
@@ -113,18 +103,18 @@ function App() {
   useEffect(() => {
       
       socket.on('systemMessage', async (data) => {
-        console.log(`[CLIENT] Received data chatData ${data} from [SERVER]`)
+        // console.log(`[CLIENT] Received data chatData ${data} from [SERVER]`)
 
         updateChatData(data)
       })
 
       socket.on('chatData', async (data) => {
-        console.log(`[CLIENT] Received data chatData ${data} from [SERVER]`)   
+        // console.log(`[CLIENT] Received data chatData ${data} from [SERVER]`)   
         updateChatData(data)
       })
 
       socket.on('chatTyping', async (data) => {
-        console.log(`[CLIENT] Received data chatTyping ${data} from [SERVER]`)
+        // console.log(`[CLIENT] Received data chatTyping ${data} from [SERVER]`)
         updateIsTyping(data)  
       })
 
@@ -140,12 +130,13 @@ function App() {
 
       socket.on('gameData', async (data) => {
         console.log(`[CLIENT] Game Board updated`)
-        console.log(data)
+        // console.log(data)
         updateGameData(data)
       })
 
       socket.on('gameStart', () => {
         setIsTurn(state.isPlayerX)
+        setHasStart(true)
       })
 
       socket.on('addScoreX', (data) => {
@@ -186,7 +177,7 @@ function App() {
     } 
   }
   return (
-    <GameProvider>
+    
     <div className="App">
       <div className="">
       <Stats scores={scores}/>
@@ -199,32 +190,44 @@ function App() {
             setBoardSquares={setBoardSquares}
             isPlayerX={state.isPlayerX}
             hasAddedFlag={hasAddedFlag}
-            // setHasAdded={setHasAdded}
+            hasStart={hasStart}
             scores={scores}
             setScores={setScores}
             />
 
+      <div>
       <Chat sendServer={sendServer} 
             chatData={state.chatData} 
             isPlayerX={state.isPlayerX} 
             isTyping={state.isTyping}
             roomCode={state.roomCode}
             />
-      </div>
-      <div>
-        <button onClick={createRoom} disabled={state.roomCode ? true : false}>Create Room</button>
+      
+      <div className="mt-5">
+        <button onClick={createRoom} 
+                disabled={state.roomCode ? true : false}
+                className="mr-5" >Create Room</button>
         <input type="text" value={inputRoomCode} 
                           onChange={handleChange} 
                           onKeyPress={handleKeyPress}
                           placeholder="Enter a room code"
-                          disabled={state.roomCode ? true : false}>
+                          disabled={state.roomCode ? true : false}
+                          className="mr-3">
                           </input>
         <button onClick={joinRoom} 
         
         disabled={state.roomCode ? true : false}>Join Room</button>
-      </div>   
+        
+      </div> 
+
+
+      
+      </div>
+
+      </div>
+      
     </div>
-    </GameProvider>
+    
     
   );
 }

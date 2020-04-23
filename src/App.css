@@ -1,3 +1,25 @@
 .App {
   text-align: center;
 }
+
+html, .App {
+  background: rgb(238, 238, 221);
+  font-family: 'Caveat Brush', cursive;
+  font-size: larger;
+}
+@import url('https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Permanent+Marker&display=swap');
+button {
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  background-color: none;
+  border: solid 2px black;
+}
+
+
+.textMarker {
+  font-family: 'Permanent Marker', cursive;
+}
+
+input[type="button"]:focus
+{
+  outline:none;
+}

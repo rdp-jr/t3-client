@@ -5,22 +5,15 @@ import { calculateWinner } from '../functions/Functions'
 // import _ from 'lodash'
 // import { GameContext } from './GameContext'
 
-const Board = ({ scores, hasAddedFlag, roomCode, isTurn, sendServer, boardSquares, setBoardSquares, isPlayerX, setScores }) => {
+const Board = ({ hasStart, hasAddedFlag, roomCode, isTurn, sendServer, boardSquares, setBoardSquares, isPlayerX, setScores }) => {
     
     const [hasSendServer, setHasSendServer] = useState(false)
-    const [hasAdded, setHasAdded] = useState(false)
+    // const [hasAdded, setHasAdded] = useState(false)
     const [hasReset, setHasReset] = useState(false)
     
     // const { setScores } = useContext(GameContext)
-    console.log(`isTurn: ${isTurn}`)
+    // console.log(`isTurn: ${isTurn}`)
     const [isDraw, setIsDraw] = useState(false)
-    
-    // if (hasAddedFlag !== hasAdded) {
-    //     console.log('hasAddedFlag !== hasAdded')
-    //     console.log(`${hasAddedFlag} !== ${hasAdded}`)
-    //     setHasAdded(hasAddedFlag)
-    //     console.log(`AFTER ${hasAddedFlag} !== ${hasAdded}`)
-    // }
 
     let newGameData = {
         boardSquares,
@@ -29,31 +22,23 @@ const Board = ({ scores, hasAddedFlag, roomCode, isTurn, sendServer, boardSquare
     }
 
     const handleDraw = (squares) => {   
-        if (squares.includes(null)) return;
-        setIsDraw(true)
+        if (squares.includes(null)) return false;
+        return true;
     }
 
     const handleClick = (index) => {
         const squares = [...boardSquares]
-        // if (squares[index] || isDraw || !isTurn || calculateWinner(boardSquares) ) {
+        
         if (squares[index] || isDraw || !isTurn) {
-            console.log('cannot click!')
+            // console.log('cannot click!')
             return;
         }
-        console.log('made a move!')
+        // console.log('made a move!')
         squares[index] = isPlayerX ? "X" : "O"
+        
+        
         setBoardSquares(squares)
-        handleDraw(squares)
-
-        // let winner = calculateWinner(boardSquares)
-        // if (winner) {
-        //     console.log('going to add score!')
-        //     if (winner === "X") {
-        //         setScores(prevScores =>({...prevScores, xScore: prevScores.xScore + 1}))
-        //     } else if (winner=== "O") {
-        //         setScores(prevScores =>({...prevScores, oScore: prevScores.oScore + 1}))
-        //     }
-        // }
+       
     
         setHasSendServer(true)   
     }
@@ -66,21 +51,20 @@ const Board = ({ scores, hasAddedFlag, roomCode, isTurn, sendServer, boardSquare
 
     
     const handleClickReset = (msg) => {
-        console.log('reset')
+        // console.log('reset')
         setBoardSquares(Array(9).fill(null))
         setIsDraw(false)
-        setHasAdded(false)
+        
         setHasReset(true)
         sendServer('gameReset', roomCode)
     }
 
     let winner = calculateWinner(boardSquares)
-    // console.log(winner)
     let status;
     if (isTurn !== null) {
         if (winner) {
             status = `${winner} has won!`
-        } else if (isDraw) {
+        } else if (handleDraw(boardSquares)) {
             status = "Draw!"
         } else {
             if (isTurn) {
@@ -92,56 +76,19 @@ const Board = ({ scores, hasAddedFlag, roomCode, isTurn, sendServer, boardSquare
     } else {
         status = ''
     }
-
-    // useEffect(() => {
-    //     console.log(`hasAdded ${hasAdded}`)
-        
-    //     if (hasAdded === false && winner) {
-    //         console.log('going to add score!')
-    //         if (winner === "X") {
-    //             setScores(prevScores =>({...prevScores, xScore: prevScores.xScore + 1}))
-    //         } else if (winner=== "O") {
-    //             setScores(prevScores =>({...prevScores, oScore: prevScores.oScore + 1}))
-    //         }
-
-    //         setHasAdded(true)
-    //     }
-    // }, [hasAdded, winner, setScores])
+    // console.log(`isDraw? ${isDraw}`)
 
     useEffect(() => {
         if (!hasAddedFlag) {
             let winner = calculateWinner(boardSquares)
             if (winner) {
                 sendServer(`addScore${winner}`, roomCode)
-                // console.log('going to add score!')
-                // if (winner === "X") {
-                //     // setScores(prevScores =>({...prevScores, xScore: prevScores.xScore + 1}))
-                // } else if (winner=== "O") {
-                //     // setScores(prevScores =>({...prevScores, oScore: prevScores.oScore + 1}))
-                // }
+                
             }
         }
     })
 
-    useEffect(() => {
-        // console.log(`hasAdded? ${hasAdded}`)
-        // console.log(winner)
-        // if (hasAdded === false && winner) {
-        //     console.log('useEffect yeah add')
-        //     sendServer(`addScore${winner}`, roomCode)
-            
-            // if (winner === "X") {
-            //     // setScores(prevScores =>({...prevScores, xScore: prevScores.xScore + 1}))
-            //     sendServer('addScoreX', roomCode) 
-            // } else if (winner === 'O') {
-            //     sendServer('addScoreO', roomCode) 
-            //     // setScores(prevScores =>({...prevScores, oScore: prevScores.oScore + 1}))
-            // }
-
-        //     setHasAdded(true)
-        //     // sendServer('gameUpdate', newGameData)
-        // }
-        
+    useEffect(() => {    
         if (hasSendServer) {
             sendServer('gameUpdate', newGameData) 
             setHasSendServer(false)
@@ -157,35 +104,39 @@ const Board = ({ scores, hasAddedFlag, roomCode, isTurn, sendServer, boardSquare
     return (
         <>
         <div>
-            <div className="status">{status}</div>
+            <div className="status"><h4>{status || 'Game has not started'}</h4></div>
             <div className="d-flex justify-content-center">
             <table className="board">
-            <tbody>
-            <tr className="">
-                <td>{renderSquare(0)}</td>
-                <td>{renderSquare(1)}</td>
-                <td>{renderSquare(2)}</td>
-            </tr>
+                <tbody>
+                <tr className="">
+                    <td>{renderSquare(0)}</td>
+                    <td>{renderSquare(1)}</td>
+                    <td>{renderSquare(2)}</td>
+                </tr>
 
-            <tr className="">
-                <td>{renderSquare(3)}</td>
-                <td>{renderSquare(4)}</td>
-                <td>{renderSquare(5)}</td>
-            </tr>
+                <tr className="">
+                    <td>{renderSquare(3)}</td>
+                    <td>{renderSquare(4)}</td>
+                    <td>{renderSquare(5)}</td>
+                </tr>
 
-            <tr className="">
-                <td>{renderSquare(6)}</td>
-                <td>{renderSquare(7)}</td>
-                <td>{renderSquare(8)}</td>
-            </tr>
-            </tbody>
+                <tr className="">
+                    <td>{renderSquare(6)}</td>
+                    <td>{renderSquare(7)}</td>
+                    <td>{renderSquare(8)}</td>
+                </tr>
+                </tbody>
             </table>
             </div>
-            <div className="mt-5">
+            <div className="mt-3">
             <button onClick={() => handleClickReset("resetBoard")}
-                    className="mr-3">Reset Board</button>
+                    className="mr-3"
+                    disabled={hasStart ? false : true}
+                    >Reset Board</button>
 
             </div>
+            
+           
         </div>
         </>
     )

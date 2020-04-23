@@ -8,15 +8,20 @@
 
 
 .square {
-    height: 50px;
+    height: 80px;
     /* max-width: 50px;
     max-height: 50px; */
-    width: 50px;
-    margin: 5px;
+    width: 80px;
+    /* margin: 15px; */
+    margin: 10px;
     vertical-align: middle;
+    /* border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+    border: 5px solid black; */
     border: none;
     background-color: transparent;
-    /* font-size: 100vh; */
+    font-size: 225%;
+    /* margin-top: 2px; */
+    padding-bottom: 5px;
     
    
 }
